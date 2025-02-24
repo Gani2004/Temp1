@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Home - OpenScroll{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">All Blog Posts</h2>
+    <div class="row">
+        {% for post in posts %}
+            <div class="col-md-12">
+                <div class="card mb-4 shadow-sm light-mode">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ post.title }}</h3>
+                        <p class="card-text">{{ post.content[:300] }}...</p>
+
+                        <!-- Author & Date -->
+                        <p class="text-muted mb-2">
+                            Posted by <strong>{{ post.user.username }}</strong> on {{ post.date_posted.strftime('%B %d, %Y') }}
+
+                        </p>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('blog.view_post', post_id=post.id) }}" class="btn btn-outline-primary">Read More</a>
+                            <button class="btn btn-outline-danger like-btn" data-id="{{ post.id }}">❤️ Like (<span class="like-count">0</span>)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-center">No posts yet! <a href="{{ url_for('blog.create_post') }}">Create one?</a></p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Like Button Script -->
+<script>
+    document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const countSpan = this.querySelector('.like-count');
+            let count = parseInt(countSpan.textContent);
+            countSpan.textContent = count + 1;
+        });
+    });
+</script>
+{% endblock %}
