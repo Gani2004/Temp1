@@ -12,6 +12,9 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 
     db.init_app(app)
+    from app import models  # Import models before creating tables
+    with app.app_context():
+        db.create_all()  # Create tables
     login_manager.init_app(app)
 
     from app.models import User  # Now safe after db initialization
