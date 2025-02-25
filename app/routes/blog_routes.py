@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from Blog_Project.app.models import BlogPost, db
-from Blog_Project.app.forms import BlogPostForm
+from app.models import BlogPost, db
+from app.forms import BlogPostForm
 import jsonify
 
 bp = Blueprint('blog', __name__)
@@ -29,7 +29,7 @@ def create_post():
 @login_required
 def dashboard():
     return render_template('dashboard.html')
-from Blog_Project.app.models import BlogPost,Comment
+from app.models import BlogPost,Comment
 @bp.route('/post/<int:post_id>', methods=['GET', 'POST'])
 @login_required
 def view_post(post_id):
@@ -91,7 +91,7 @@ def delete_post(post_id):
 
     return redirect(url_for('blog.index'))
 
-from Blog_Project.app.models import User
+from app.models import User
 @bp.route('/users')
 def users():
     all_users = User.query.all()
