@@ -9,7 +9,8 @@ bp = Blueprint('blog', __name__)
 @bp.route('/')
 @login_required
 def index():
-    posts = BlogPost.query.all()
+    posts = BlogPost.query.order_by(BlogPost.date_posted.desc()).all()
+    db.session.expire_all()  # Force SQLAlchemy to fetch fresh data
     return render_template('index.html', posts=posts, current_user=current_user)
 
 @bp.route('/create', methods=['GET', 'POST'])
@@ -86,6 +87,7 @@ def delete_post(post_id):
     # Proceed with deletion
     try:
         db.session.delete(post)
+
         db.session.commit()
         flash('Post deleted successfully!', 'success')
     except Exception as e:
