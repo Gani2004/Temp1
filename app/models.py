@@ -36,7 +36,7 @@ class BlogPost(db.Model):
 
     # Use back_populates for explicit relationships
     author = db.relationship('User', back_populates='posts')
-    comments = db.relationship('Comment', back_populates='post', lazy=True)
+    comments = db.relationship('Comment', backref='blog_post', cascade="all, delete", passive_deletes=True)
 
     def __repr__(self):
         return f"<BlogPost {self.title}>"
