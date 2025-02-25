@@ -32,8 +32,6 @@ def dashboard():
 from app.models import BlogPost,Comment
 @bp.route('/post/<int:post_id>', methods=['GET', 'POST'])
 @login_required
-@bp.route('/post/<int:post_id>', methods=['GET', 'POST'])
-@login_required
 def view_post(post_id):
     post = BlogPost.query.get_or_404(post_id)
 
