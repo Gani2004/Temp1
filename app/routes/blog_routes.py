@@ -32,19 +32,24 @@ def dashboard():
 from app.models import BlogPost,Comment
 @bp.route('/post/<int:post_id>', methods=['GET', 'POST'])
 @login_required
+@bp.route('/post/<int:post_id>', methods=['GET', 'POST'])
+@login_required
 def view_post(post_id):
     post = BlogPost.query.get_or_404(post_id)
 
     # Handle comment submission
     if request.method == 'POST':
         comment_content = request.form.get('comment')
-        if comment_content:
-            new_comment = Comment(content=comment_content, user_id=current_user.id, post_id=post.id)
+        if comment_content.strip():
+            new_comment = Comment(content=comment_content.strip(), user_id=current_user.id, post_id=post.id)
             db.session.add(new_comment)
             db.session.commit()
             flash('Comment added!', 'success')
             return redirect(url_for('blog.view_post', post_id=post.id))
+        else:
+            flash('Comment cannot be empty.', 'warning')
 
+    # Fetch comments for display
     comments = Comment.query.filter_by(post_id=post.id).order_by(Comment.date_posted.desc()).all()
     return render_template('view_post.html', post=post, comments=comments)
 
