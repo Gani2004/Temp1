@@ -1,0 +1,17 @@
+<!-- templates/key_prompt.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enter Access Key</title>
+</head>
+<body>
+    <h2>Enter Access Key</h2>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <form method="POST">
+        <input type="password" name="access_key" placeholder="Enter Access Key" required>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

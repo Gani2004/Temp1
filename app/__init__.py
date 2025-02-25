@@ -1,6 +1,7 @@
-from flask import Flask,render_template
+from flask import Flask,render_template,session,abort,request,redirect,url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+import requests
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -29,6 +30,28 @@ def create_app():
     @app.route('/')
     def welcome():
         return render_template('welcome.html')
+    acc_key='030902'
 
+    @app.route('/users', methods=['GET', 'POST'])
+    def list_users():
+        # Check if user is already authenticated
+        if session.get('authenticated'):
+            users = User.query.all()
+            return render_template('users.html', users=users)
+
+        if request.method == 'POST':
+            entered_key = request.form.get('access_key')
+            if entered_key == acc_key:
+                session['authenticated'] = True  # Set session as authenticated
+                return redirect(url_for('list_users'))
+            else:
+                return render_template('key_prompt.html', error="Invalid Key")
+
+        return render_template('key_prompt.html')
+
+    @app.route('/logout')
+    def logout():
+        session.pop('authenticated', None)
+        return redirect(url_for('list_users'))
     return app
 

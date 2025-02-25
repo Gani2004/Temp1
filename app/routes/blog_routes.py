@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from Blog_Project.app.models import BlogPost, db
 from Blog_Project.app.forms import BlogPostForm
+import jsonify
 
 bp = Blueprint('blog', __name__)
 
@@ -28,12 +29,33 @@ def create_post():
 @login_required
 def dashboard():
     return render_template('dashboard.html')
-
-@bp.route('/post/<int:post_id>')
+from Blog_Project.app.models import BlogPost,Comment
+@bp.route('/post/<int:post_id>', methods=['GET', 'POST'])
+@login_required
 def view_post(post_id):
-    # Logic to retrieve and display the post
     post = BlogPost.query.get_or_404(post_id)
-    return render_template('view_post.html', post=post)
+
+    # Handle comment submission
+    if request.method == 'POST':
+        comment_content = request.form.get('comment')
+        if comment_content:
+            new_comment = Comment(content=comment_content, user_id=current_user.id, post_id=post.id)
+            db.session.add(new_comment)
+            db.session.commit()
+            flash('Comment added!', 'success')
+            return redirect(url_for('blog.view_post', post_id=post.id))
+
+    comments = Comment.query.filter_by(post_id=post.id).order_by(Comment.date_posted.desc()).all()
+    return render_template('view_post.html', post=post, comments=comments)
+
+@bp.route('/like/<int:post_id>', methods=['POST'])
+@login_required
+def like_post(post_id):
+    post = BlogPost.query.get_or_404(post_id)
+    post.likes += 1
+    db.session.commit()
+    return jsonify({'likes': post.likes})
+
 
 @bp.route("/post/new", methods=['GET', 'POST'])
 @login_required
@@ -49,9 +71,16 @@ def new_post():
     return render_template('create_post.html', title='New Post', form=form, legend='New Post')
 
 @bp.route('/delete/<int:post_id>', methods=['POST'])
+@login_required
 def delete_post(post_id):
     post = BlogPost.query.get_or_404(post_id)
 
+    # Check if the current user is the author
+    if post.user_id != current_user.id:
+        flash("You don't have permission to delete this post.", 'danger')
+        return redirect(url_for('blog.view_post', post_id=post.id))
+
+    # Proceed with deletion
     try:
         db.session.delete(post)
         db.session.commit()
@@ -61,6 +90,7 @@ def delete_post(post_id):
         flash('Error deleting post: ' + str(e), 'danger')
 
     return redirect(url_for('blog.index'))
+
 from Blog_Project.app.models import User
 @bp.route('/users')
 def users():
