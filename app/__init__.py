@@ -14,17 +14,17 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
 
-    from Blog_Project.app.models import User  # Now safe after db initialization
+    from app.models import User  # Now safe after db initialization
 
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
 
     # Register Blueprints
-    from Blog_Project.app.routes.auth_routes import bp as auth_bp
+    from app.routes.auth_routes import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
 
-    from Blog_Project.app.routes.blog_routes import bp as blog_bp
+    from app.routes.blog_routes import bp as blog_bp
     app.register_blueprint(blog_bp, url_prefix='/blog')
 
     @app.route('/')
