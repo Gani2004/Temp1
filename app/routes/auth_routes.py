@@ -16,7 +16,7 @@ def register():
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             flash('Email already registered!', 'danger')
-            return redirect(url_for('auth.register'))
+            return redirect(url_for('auth.login'))
 
         new_user = User(username=username, email=email)
         new_user.set_password(password)
